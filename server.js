@@ -1,41 +1,38 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 
 const app = express();
-const PORT = 3000; // or 80 if deploying to production
-
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.post("/send", async (req, res) => {
   const { title, message } = req.body;
 
   const transporter = nodemailer.createTransport({
-    host: "smtppro.zoho.com",
-    port: 465,
-    secure: true,
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false,
     auth: {
-      user: "r.praboda@10280805.xyz", // your Zoho email
-      pass: "zANkVBw55Vv1", // App-specific password from Zoho
+      user: "9150c2001@smtp-brevo.com", // replace with your Brevo login email
+      pass: "DwjC8S9EkLJNrsxn",                      // replace with your generated SMTP key
     },
   });
 
   const mailOptions = {
-    from: '"Website Contact" <your@10280805.xyz>',
-    to: "r.praboda@10280805.xyz", // or another recipient
+    from: '"Your Name" <your_email@yourdomain.com>', // Brevo allows custom domain if verified
+    to: "recipient@example.com",                     // replace with recipient email
     subject: title,
     text: message,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    res.status(200).send({ success: true, message: "Email sent!" });
-  } catch (err) {
-    res.status(500).send({ success: false, message: err.message });
+    res.json({ success: true, message: "Email sent successfully!" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
