@@ -1,39 +1,43 @@
-require("dotenv").config();
-const express = require("express");
-const nodemailer = require("nodemailer");
-const cors = require("cors");
+require('dotenv').config();
+const express = require('express');
+const nodemailer = require('nodemailer');
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
-app.post("/send", async (req, res) => {
+// Setup transporter
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: parseInt(process.env.SMTP_PORT || '587'), // default to 587 if undefined
+  secure: process.env.SMTP_SECURE === 'true', // 'true' string will make secure: true
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
+// Send email endpoint
+app.post('/send', async (req, res) => {
   const { title, message } = req.body;
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp-relay.brevo.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
   const mailOptions = {
-    from: `"Your Name" <${process.env.SMTP_USER}>`,
-    to: "prabodacode@gmail.com", // replace with actual recipient
+    from: process.env.FROM_EMAIL,
+    to: process.env.TO_EMAIL,
     subject: title,
     text: message,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    res.json({ success: true, message: "Email sent successfully!" });
+    res.json({ success: true, message: 'Email sent successfully' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Email send failed:', error);
+    res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
   }
 });
 
+// Use dynamic port for Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
