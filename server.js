@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors({
-  origin: 'https://your-cloudflare-domain.com'
+  origin: 'https://10280805.xyz'
 }));
 app.use(express.json());
 
