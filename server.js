@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
@@ -14,14 +15,14 @@ app.post("/send", async (req, res) => {
     port: 587,
     secure: false,
     auth: {
-      user: "9150c2001@smtp-brevo.com", // replace with your Brevo login email
-      pass: "DwjC8S9EkLJNrsxn",                      // replace with your generated SMTP key
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 
   const mailOptions = {
-    from: '"Your Name" <your_email@yourdomain.com>', // Brevo allows custom domain if verified
-    to: "recipient@example.com",                     // replace with recipient email
+    from: `"Your Name" <${process.env.SMTP_USER}>`,
+    to: "prabodacode@gmail.com", // replace with actual recipient
     subject: title,
     text: message,
   };
